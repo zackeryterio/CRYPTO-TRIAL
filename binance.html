@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binance Spot Trading</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@3.8.0/dist/lightweight-charts.standalone.production.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background-color: #0b0e11;
+            color: #eaecef;
+            font-size: 14px;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .header {
+            background-color: #1e2329;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #2b3139;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #f0b90b;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        
+        .logo-demo {
+            background: #f6465d;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .header-balance {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .balance-item {
+            text-align: right;
+        }
+        
+        .balance-label {
+            color: #848e9c;
+            font-size: 12px;
+        }
+        
+        .balance-amount {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .page {
+            height: calc(100vh - 104px);
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        /* Home Page Styles */
+        .home-content {
+            padding: 15px;
+        }
+        
+        .balance-card {
+            background-color: #1e2329;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .balance-label {
+            color: #848e9c;
+            font-size: 12px;
+        }
+        
+        .balance-amount {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        
+        .balance-eur {
+            color: #848e9c;
+            font-size: 14px;
+        }
+        
+        .quick-actions {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+        }
+        
+        .quick-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            color: #848e9c;
+            font-size: 12px;
+        }
+        
+        .quick-action-icon {
+            background-color: #2b3139;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0 10px;
+        }
+        
+        .section-title {
+            font-weight: bold;
+        }
+        
+        .section-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .section-tab {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            background: #2b3139;
+            border: none;
+            color: #848e9c;
+        }
+        
+        .section-tab.active {
+            background-color: #2b3139;
+            color: #f0b90b;
+        }
+        
+        .coin-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .coin-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #2b3139;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        
+        .coin-item:hover {
+            background: #2b3139;
+        }
+        
+        .coin-item.active {
+            background: #2b3139;
+            border-left: 3px solid #f0b90b;
+        }
+        
+        .coin-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .coin-name {
+            font-weight: bold;
+        }
+        
+        .coin-price {
+            text-align: right;
+        }
+        
+        .price-change {
+            font-size: 12px;
+        }
+        
+        .price-change.positive {
+            color: #0ecb81;
+        }
+        
+        .price-change.negative {
+            color: #f6465d;
+        }
+        
+        /* Trade Page Styles */
+        .trade-header {
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #2b3139;
+        }
+        
+        .symbol-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .symbol-name {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .price-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .price-change-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .price-change-badge.positive {
+            background-color: rgba(14, 203, 129, 0.2);
+            color: #0ecb81;
+        }
+        
+        .price-change-badge.negative {
+            background-color: rgba(246, 70, 93, 0.2);
+            color: #f6465d;
+        }
+        
+        .timeframes {
+            display: flex;
+            gap: 5px;
+            padding: 10px 15px;
+            border-bottom: 1px solid #2b3139;
+            background: #1e2329;
+        }
+        
+        .timeframe {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #848e9c;
+            background: none;
+            border: none;
+        }
+        
+        .timeframe.active {
+            background-color: #2b3139;
+            color: #f0b90b;
+        }
+        
+        .chart-container {
+            height: 400px;
+            background: #1e2329;
+        }
+        
+        #chart {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .trading-panel {
+            padding: 15px;
+        }
+        
+        .panel-tabs {
+            display: flex;
+            border-bottom: 1px solid #2b3139;
+            margin-bottom: 15px;
+        }
+        
+        .panel-tab {
+            padding: 12px;
+            flex: 1;
+            text-align: center;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #848e9c;
+        }
+        
+        .panel-tab.active {
+            color: #f0b90b;
+            border-bottom: 2px solid #f0b90b;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        
+        label {
+            color: #848e9c;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .available-balance {
+            color: #eaecef;
+            font-weight: 500;
+        }
+        
+        input, select {
+            background-color: #2b3139;
+            border: 1px solid #2b3139;
+            border-radius: 4px;
+            padding: 12px;
+            color: #eaecef;
+            outline: none;
+            font-size: 14px;
+        }
+        
+        input:focus, select:focus {
+            border-color: #f0b90b;
+        }
+        
+        .percent-buttons {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+        }
+        
+        .percent-btn {
+            flex: 1;
+            padding: 8px;
+            background: #2b3139;
+            border: 1px solid #2b3139;
+            border-radius: 4px;
+            color: #848e9c;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .percent-btn:hover {
+            background: #3a424d;
+        }
+        
+        .btn {
+            padding: 16px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            font-size: 14px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .btn-buy {
+            background-color: #0ecb81;
+            color: #0b0e11;
+        }
+        
+        .btn-sell {
+            background-color: #f6465d;
+            color: #0b0e11;
+        }
+        
+        .order-book {
+            margin-top: 20px;
+            background: #1e2329;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .order-book-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #848e9c;
+            font-size: 12px;
+        }
+        
+        .order-book-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .order-book-row:hover {
+            background: #2b3139;
+        }
+        
+        .order-book-row.ask {
+            color: #f6465d;
+        }
+        
+        .order-book-row.bid {
+            color: #0ecb81;
+        }
+        
+        /* Assets Page Styles */
+        .assets-content {
+            padding: 15px;
+        }
+        
+        .assets-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .assets-search {
+            background-color: #2b3139;
+            border-radius: 4px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #848e9c;
+        }
+        
+        .assets-tabs {
+            display: flex;
+            border-bottom: 1px solid #2b3139;
+            margin-bottom: 15px;
+        }
+        
+        .assets-tab {
+            padding: 12px;
+            flex: 1;
+            text-align: center;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #848e9c;
+        }
+        
+        .assets-tab.active {
+            color: #f0b90b;
+            border-bottom: 2px solid #f0b90b;
+        }
+        
+        .asset-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            border-bottom: 1px solid #2b3139;
+            background: #1e2329;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .asset-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .asset-name {
+            font-weight: bold;
+        }
+        
+        .asset-amount {
+            text-align: right;
+        }
+        
+        .asset-value {
+            color: #848e9c;
+            font-size: 12px;
+        }
+        
+        /* Footer Navigation */
+        .footer-tabs {
+            display: flex;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #1e2329;
+            border-top: 1px solid #2b3139;
+        }
+        
+        .footer-tab {
+            padding: 10px;
+            flex: 1;
+            text-align: center;
+            font-size: 10px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #848e9c;
+        }
+        
+        .footer-tab.active {
+            color: #f0b90b;
+        }
+        
+        .footer-tab-icon {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+        
+        /* Markets Page Styles */
+        .markets-content {
+            padding: 15px;
+        }
+        
+        .markets-tabs {
+            display: flex;
+            border-bottom: 1px solid #2b3139;
+            margin-bottom: 15px;
+        }
+        
+        .markets-tab {
+            padding: 12px;
+            flex: 1;
+            text-align: center;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #848e9c;
+        }
+        
+        .markets-tab.active {
+            color: #f0b90b;
+            border-bottom: 2px solid #f0b90b;
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            right: 15px;
+            background: #1e2329;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease;
+            z-index: 1000;
+            border-left: 4px solid #f0b90b;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Order Summary */
+        .order-summary {
+            background: #2b3139;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        
+        .summary-row:last-child {
+            margin-bottom: 0;
+            font-weight: bold;
+        }
+        
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #848e9c;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <span>₿</span>
+            <span>Binance</span>
+            <span class="logo-demo">DEMO</span>
+        </div>
+        
+        <div class="header-balance">
+            <div class="balance-item">
+                <div class="balance-label">EUR</div>
+                <div class="balance-amount" id="headerEurBalance">€400.00</div>
+            </div>
+            <div class="balance-item">
+                <div class="balance-label">BTC</div>
+                <div class="balance-amount" id="headerBtcBalance">0.005000</div>
+            </div>
+        </div>
+        
+        <div class="header-actions">
+            <span class="material-icons" title="Notifications">notifications</span>
+            <span class="material-icons" title="Settings" onclick="showSettings()">settings</span>
+        </div>
+    </div>
+    
+    <!-- Home Page -->
+    <div id="homePage" class="page active">
+        <div class="home-content">
+            <div class="balance-card">
+                <div class="balance-label">Total Balance (EUR)</div>
+                <div class="balance-amount" id="totalBalance">€400.00</div>
+                <div class="balance-eur" id="portfolioChange">+€0.00 (0.00%) Today</div>
+            </div>
+            
+            <div class="quick-actions">
+                <div class="quick-action" onclick="showDeposit()">
+                    <div class="quick-action-icon">
+                        <span class="material-icons">account_balance_wallet</span>
+                    </div>
+                    <div>Deposit</div>
+                </div>
+                <div class="quick-action" onclick="showWithdraw()">
+                    <div class="quick-action-icon">
+                        <span class="material-icons">payment</span>
+                    </div>
+                    <div>Withdraw</div>
+                </div>
+                <div class="quick-action" onclick="convertFunds()">
+                    <div class="quick-action-icon">
+                        <span class="material-icons">swap_vert</span>
+                    </div>
+                    <div>Convert</div>
+                </div>
+                <div class="quick-action" onclick="showMore()">
+                    <div class="quick-action-icon">
+                        <span class="material-icons">more_horiz</span>
+                    </div>
+                    <div>More</div>
+                </div>
+            </div>
+            
+            <div class="section-header">
+                <div class="section-title">Favorites</div>
+            </div>
+            
+            <div class="section-tabs">
+                <div class="section-tab active" onclick="filterFavorites('all')">All</div>
+                <div class="section-tab" onclick="filterFavorites('gainers')">Gainers</div>
+                <div class="section-tab" onclick="filterFavorites('losers')">Losers</div>
+                <div class="section-tab" onclick="filterFavorites('volume')">Volume</div>
+            </div>
+            
+            <div class="coin-list" id="favoritesList">
+                <div class="loading">Loading favorites...</div>
+            </div>
+            
+            <div class="section-header">
+                <div class="section-title">All Markets</div>
+                <div class="section-actions">
+                    <select id="marketFilter" onchange="filterMarkets()" style="background: #2b3139; border: none; color: #eaecef; padding: 4px 8px; border-radius: 4px;">
+                        <option value="EUR">EUR Pairs</option>
+                        <option value="USDT">USDT Pairs</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="coin-list" id="marketList">
+                <div class="loading">Loading markets...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Markets Page -->
+    <div id="marketsPage" class="page">
+        <div class="markets-content">
+            <div class="markets-tabs">
+                <div class="markets-tab active" onclick="showMarketsTab('spot')">Spot</div>
+                <div class="markets-tab" onclick="showMarketsTab('favorites')">Favorites</div>
+                <div class="markets-tab" onclick="showMarketsTab('new')">New Listings</div>
+            </div>
+            
+            <div class="market-search" style="margin-bottom: 15px;">
+                <input type="text" id="marketsSearch" placeholder="Search markets..." style="width: 100%;" onkeyup="searchMarkets()">
+            </div>
+            
+            <div class="coin-list" id="marketsList">
+                <div class="loading">Loading all markets...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Trade Page -->
+    <div id="tradePage" class="page">
+        <div class="trade-header">
+            <div class="symbol-info">
+                <div class="symbol-name" id="tradePair">BTC/EUR</div>
+                <div class="price-info">
+                    <div class="price-change-badge" id="tradePriceChange">+0.00%</div>
+                    <div id="tradePrice">€0.00</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="timeframes">
+            <button class="timeframe" onclick="changeTimeframe('1m')">1m</button>
+            <button class="timeframe" onclick="changeTimeframe('5m')">5m</button>
+            <button class="timeframe active" onclick="changeTimeframe('15m')">15m</button>
+            <button class="timeframe" onclick="changeTimeframe('1h')">1h</button>
+            <button class="timeframe" onclick="changeTimeframe('4h')">4h</button>
+            <button class="timeframe" onclick="changeTimeframe('1d')">1d</button>
+            <button class="timeframe" onclick="changeTimeframe('1w')">1w</button>
+        </div>
+        
+        <div class="chart-container">
+            <div id="chart"></div>
+        </div>
+        
+        <div class="trading-panel">
+            <div class="panel-tabs">
+                <div class="panel-tab active" onclick="setOrderType('limit')">Limit</div>
+                <div class="panel-tab" onclick="setOrderType('market')">Market</div>
+                <div class="panel-tab" onclick="setOrderType('stop')">Stop-Limit</div>
+            </div>
+            
+            <div class="input-group">
+                <label>
+                    <span>Price (EUR)</span>
+                    <span class="available-balance" id="priceBalanceInfo"></span>
+                </label>
+                <input type="number" id="orderPrice" value="0.00" step="0.01">
+            </div>
+            
+            <div class="input-group">
+                <label>
+                    <span>Amount</span>
+                    <span class="available-balance" id="amountBalanceInfo"></span>
+                </label>
+                <input type="number" id="orderAmount" value="0.00" step="0.000001">
+                <div class="percent-buttons">
+                    <button class="percent-btn" onclick="setOrderPercentage(0.25)">25%</button>
+                    <button class="percent-btn" onclick="setOrderPercentage(0.5)">50%</button>
+                    <button class="percent-btn" onclick="setOrderPercentage(0.75)">75%</button>
+                    <button class="percent-btn" onclick="setOrderPercentage(1)">100%</button>
+                </div>
+            </div>
+            
+            <div class="order-summary">
+                <div class="summary-row">
+                    <span>Total</span>
+                    <span id="orderTotal">€0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Fee (0.1%)</span>
+                    <span id="orderFee">€0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>You Will Receive</span>
+                    <span id="orderReceive">0.000000 BTC</span>
+                </div>
+            </div>
+            
+            <button class="btn btn-buy" onclick="placeOrder('buy')">Buy BTC</button>
+            <button class="btn btn-sell" onclick="placeOrder('sell')">Sell BTC</button>
+            
+            <div class="order-book">
+                <div class="order-book-header">
+                    <div>Price (EUR)</div>
+                    <div>Amount</div>
+                    <div>Total</div>
+                </div>
+                <div id="orderBookRows">
+                    <!-- Order book will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Open Orders Section -->
+            <div class="open-trades" style="margin-top: 20px;">
+                <div class="open-trades-header">
+                    <div class="open-trades-title">Open Orders</div>
+                </div>
+                <div class="open-trades-list" id="openOrdersList">
+                    <!-- Open orders will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Assets Page -->
+    <div id="assetsPage" class="page">
+        <div class="assets-content">
+            <div class="assets-header">
+                <div class="assets-search" style="flex: 1;">
+                    <span class="material-icons">search</span>
+                    <input type="text" placeholder="Search assets..." id="assetsSearch" style="background: none; border: none; color: #eaecef; width: 100%;" onkeyup="searchAssets()">
+                </div>
+                <button onclick="resetDemo()" style="margin-left: 10px; padding: 8px 16px; background: #f6465d; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                    Reset Demo
+                </button>
+            </div>
+            
+            <div class="assets-tabs">
+                <div class="assets-tab active" onclick="showAssetsTab('all')">All Assets</div>
+                <div class="assets-tab" onclick="showAssetsTab('favorites')">Favorites</div>
+                <div class="assets-tab" onclick="showAssetsTab('hidden')">Hidden</div>
+            </div>
+            
+            <div class="balance-card">
+                <div class="balance-label">Total Portfolio Value (EUR)</div>
+                <div class="balance-amount" id="assetsTotalBalance">€400.00</div>
+                <div class="balance-eur" id="assetsPortfolioChange">+€0.00 (0.00%) Today</div>
+            </div>
+            
+            <div id="assetsList">
+                <div class="loading">Loading assets...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer Navigation -->
+    <div class="footer-tabs">
+        <div class="footer-tab active" data-page="homePage" onclick="switchPage('homePage')">
+            <div class="footer-tab-icon material-icons">home</div>
+            <div>Home</div>
+        </div>
+        <div class="footer-tab" data-page="marketsPage" onclick="switchPage('marketsPage')">
+            <div class="footer-tab-icon material-icons">bar_chart</div>
+            <div>Markets</div>
+        </div>
+        <div class="footer-tab" data-page="tradePage" onclick="switchPage('tradePage')">
+            <div class="footer-tab-icon material-icons">swap_horiz</div>
+            <div>Trade</div>
+        </div>
+        <div class="footer-tab" data-page="assetsPage" onclick="switchPage('assetsPage')">
+            <div class="footer-tab-icon material-icons">account_balance_wallet</div>
+            <div>Assets</div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+
+    <script>
+        // ========== GLOBAL STATE ==========
+        const state = {
+            // Initial balance (€400 demo)
+            balance: {
+                EUR: 400.00,
+                BTC: 0.005,
+                ETH: 0.05,
+                BNB: 1.0,
+                ADA: 200,
+                XRP: 500,
+                SOL: 2.5,
+                DOGE: 5000
+            },
+            
+            // Current trading state
+            currentPage: 'homePage',
+            currentPair: 'BTCEUR',
+            currentPrice: 0,
+            currentChange: 0,
+            orderType: 'limit',
+            timeframe: '15m',
+            
+            // Market data
+            marketData: {},
+            favorites: ['BTCEUR', 'ETHEUR', 'BNBEUR', 'ADAEUR', 'SOLEUR'],
+            
+            // Orders
+            openOrders: [],
+            tradeHistory: [],
+            
+            // Chart
+            chart: null,
+            candleSeries: null,
+            
+            // WebSocket
+            ws: null,
+            
+            // Settings
+            settings: {
+                theme: 'dark',
+                notifications: true,
+                sounds: true
+            }
+        };
+
+        // ========== LOCAL STORAGE ==========
+        function saveToStorage() {
+            const data = {
+                balance: state.balance,
+                favorites: state.favorites,
+                openOrders: state.openOrders,
+                tradeHistory: state.tradeHistory,
+                settings: state.settings
+            };
+            localStorage.setItem('binance_demo_v3', JSON.stringify(data));
+        }
+
+        function loadFromStorage() {
+            const saved = localStorage.getItem('binance_demo_v3');
+            if (saved) {
+                const data = JSON.parse(saved);
+                if (data.balance) state.balance = data.balance;
+                if (data.favorites) state.favorites = data.favorites;
+                if (data.openOrders) state.openOrders = data.openOrders;
+                if (data.tradeHistory) state.tradeHistory = data.tradeHistory;
+                if (data.settings) state.settings = data.settings;
+            }
+        }
+
+        // ========== INITIALIZATION ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Loading Binance Demo...');
+            
+            // Load saved data
+            loadFromStorage();
+            
+            // Initialize UI
+            updateBalanceDisplay();
+            updatePortfolioValue();
+            
+            // Load all market data
+            loadAllMarkets();
+            
+            // Setup WebSocket for current pair
+            setupWebSocket();
+            
+            // Initialize charts if on trade page
+            if (document.getElementById('tradePage').classList.contains('active')) {
+                setTimeout(initChart, 500);
+            }
+            
+            // Load open orders
+            updateOpenOrders();
+            
+            // Auto-save every 30 seconds
+            setInterval(saveToStorage, 30000);
+            
+            // Update order total when inputs change
+            document.getElementById('orderPrice')?.addEventListener('input', updateOrderTotal);
+            document.getElementById('orderAmount')?.addEventListener('input', updateOrderTotal);
+            
+            // Setup market filter
+            document.getElementById('marketFilter')?.addEventListener('change', filterMarkets);
+        });
+
+        // ========== MARKET DATA ==========
+        async function loadAllMarkets() {
+            try {
+                console.log('Fetching all Binance markets...');
+                
+                // Get ALL markets from Binance
+                const response = await fetch('https://api.binance.com/api/v3/ticker/24hr');
+                const allMarkets = await response.json();
+                
+                console.log(`Found ${allMarkets.length} markets`);
+                
+                // Filter for EUR and USDT pairs
+                const filteredMarkets = allMarkets
+                    .filter(ticker => ticker.symbol.endsWith('EUR') || ticker.symbol.endsWith('USDT'))
+                    .map(ticker => ({
+                        symbol: ticker.symbol,
+                        price: parseFloat(ticker.lastPrice),
+                        change: parseFloat(ticker.priceChangePercent),
+                        volume: parseFloat(ticker.quoteVolume),
+                        high: parseFloat(ticker.highPrice),
+                        low: parseFloat(ticker.lowPrice)
+                    }))
+                    .sort((a, b) => b.volume - a.volume)
+                    .slice(0, 200); // Top 200 by volume
+                
+                // Store in state
+                state.marketData = {};
+                filteredMarkets.forEach(market => {
+                    state.marketData[market.symbol] = market;
+                });
+                
+                // Update UI
+                updateMarketLists();
+                updateFavoritesList();
+                
+                // Set current price if market exists
+                if (state.marketData[state.currentPair]) {
+                    state.currentPrice = state.marketData[state.currentPair].price;
+                    state.currentChange = state.marketData[state.currentPair].change;
+                    updateTradeDisplay();
+                }
+                
+            } catch (error) {
+                console.error('Error loading markets:', error);
+                loadFallbackMarkets();
+            }
+        }
+
+        function loadFallbackMarkets() {
+            // Fallback data with top 100 coins
+            const topPairs = [
+                'BTCEUR', 'ETHEUR', 'BNBEUR', 'ADAEUR', 'XRPEUR', 'SOLEUR', 'DOTEUR', 'DOGEEUR',
+                'MATICEUR', 'SHIBEUR', 'TRXEUR', 'LTCEUR', 'UNIEUR', 'ATOMEUR', 'LINKEUR',
+                'XLMEUR', 'ETCEUR', 'BCHEUR', 'XMREUR', 'VETEUR', 'FILEUR', 'THETAEUR',
+                'AXSEUR', 'FTMEUR', 'AAVEEUR', 'ALGOEUR', 'SANDEUR', 'MANAEUR', 'GALAEUR'
+            ];
+            
+            state.marketData = {};
+            topPairs.forEach(symbol => {
+                const price = Math.random() * 1000 + 10;
+                const change = (Math.random() * 20) - 10;
+                
+                state.marketData[symbol] = {
+                    symbol: symbol,
+                    price: price,
+                    change: change,
+                    volume: Math.random() * 1000000,
+                    high: price * 1.05,
+                    low: price * 0.95
+                };
+            });
+            
+            updateMarketLists();
+        }
+
+        // ========== UI UPDATES ==========
+        function updateMarketLists() {
+            updateHomeMarketList();
+            updateMarketsPageList();
+            updateFavoritesList();
+        }
+
+        function updateHomeMarketList() {
+            const container = document.getElementById('marketList');
+            if (!container) return;
+            
+            const markets = Object.values(state.marketData)
+                .filter(market => market.symbol.endsWith('EUR'))
+                .slice(0, 20);
+            
+            container.innerHTML = markets.map(market => `
+                <div class="coin-item ${market.symbol === state.currentPair ? 'active' : ''}" 
+                     onclick="selectPair('${market.symbol}')">
+                    <div class="coin-info">
+                        <div>
+                            <div class="coin-name">${market.symbol.replace('EUR', '')}</div>
+                            <div style="color: #848e9c; font-size: 12px;">${market.symbol}</div>
+                        </div>
+                    </div>
+                    <div class="coin-price">
+                        <div>€${market.price.toFixed(2)}</div>
+                        <div class="price-change ${market.change >= 0 ? 'positive' : 'negative'}">
+                            ${market.change >= 0 ? '+' : ''}${market.change.toFixed(2)}%
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateMarketsPageList() {
+            const container = document.getElementById('marketsList');
+            if (!container) return;
+            
+            const markets = Object.values(state.marketData)
+                .filter(market => market.symbol.endsWith('EUR'))
+                .sort((a, b) => b.volume - a.volume);
+            
+            container.innerHTML = markets.map(market => `
+                <div class="coin-item ${market.symbol === state.currentPair ? 'active' : ''}" 
+                     onclick="selectPair('${market.symbol}'); switchPage('tradePage');">
+                    <div class="coin-info">
+                        <div>
+                            <div class="coin-name">${market.symbol.replace('EUR', '')}</div>
+                            <div style="color: #848e9c; font-size: 12px;">${market.symbol}</div>
+                        </div>
+                    </div>
+                    <div class="coin-price">
+                        <div>€${market.price.toFixed(2)}</div>
+                        <div class="price-change ${market.change >= 0 ? 'positive' : 'negative'}">
+                            ${market.change >= 0 ? '+' : ''}${market.change.toFixed(2)}%
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateFavoritesList() {
+            const container = document.getElementById('favoritesList');
+            if (!container) return;
+            
+            const favorites = state.favorites
+                .map(symbol => state.marketData[symbol])
+                .filter(market => market);
+            
+            if (favorites.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #848e9c;">No favorites yet</div>';
+                return;
+            }
+            
+            container.innerHTML = favorites.map(market => `
+                <div class="coin-item ${market.symbol === state.currentPair ? 'active' : ''}" 
+                     onclick="selectPair('${market.symbol}')">
+                    <div class="coin-info">
+                        <div>
+                            <div class="coin-name">${market.symbol.replace('EUR', '')}</div>
+                            <div style="color: #848e9c; font-size: 12px;">${market.symbol}</div>
+                        </div>
+                    </div>
+                    <div class="coin-price">
+                        <div>€${market.price.toFixed(2)}</div>
+                        <div class="price-change ${market.change >= 0 ? 'positive' : 'negative'}">
+                            ${market.change >= 0 ? '+' : ''}${market.change.toFixed(2)}%
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateAssetsList() {
+            const container = document.getElementById('assetsList');
+            if (!container) return;
+            
+            const assets = Object.entries(state.balance)
+                .filter(([coin, amount]) => amount > 0)
+                .map(([coin, amount]) => {
+                    const market = state.marketData[`${coin}EUR`];
+                    const price = market?.price || 1;
+                    const value = amount * price;
+                    
+                    return { coin, amount, price, value };
+                })
+                .sort((a, b) => b.value - a.value);
+            
+            if (assets.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #848e9c;">No assets</div>';
+                return;
+            }
+            
+            container.innerHTML = assets.map(asset => `
+                <div class="asset-item">
+                    <div class="asset-info">
+                        <div style="width: 40px; height: 40px; background: #2b3139; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                            ${asset.coin.charAt(0)}
+                        </div>
+                        <div>
+                            <div class="asset-name">${asset.coin}</div>
+                            <div style="color: #848e9c; font-size: 12px;">€${asset.price.toFixed(2)}</div>
+                        </div>
+                    </div>
+                    <div class="asset-amount">
+                        <div style="font-weight: bold; font-size: 16px;">${asset.amount.toFixed(6)}</div>
+                        <div class="asset-value">€${asset.value.toFixed(2)}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateBalanceDisplay() {
+            // Update header
+            document.getElementById('headerEurBalance').textContent = `€${state.balance.EUR.toFixed(2)}`;
+            document.getElementById('headerBtcBalance').textContent = state.balance.BTC.toFixed(6);
+            
+            // Update home page
+            document.getElementById('totalBalance').textContent = `€${state.balance.EUR.toFixed(2)}`;
+            
+            // Update trade page balance info
+            updateBalanceInfo();
+        }
+
+        function updatePortfolioValue() {
+            let totalValue = 0;
+            
+            Object.entries(state.balance).forEach(([coin, amount]) => {
+                const market = state.marketData[`${coin}EUR`];
+                const price = market?.price || 1;
+                totalValue += amount * price;
+            });
+            
+            document.getElementById('assetsTotalBalance').textContent = `€${totalValue.toFixed(2)}`;
+            
+            // Update portfolio change (demo)
+            const change = (Math.random() * 100) - 50;
+            const changeValue = totalValue * (change / 100);
+            document.getElementById('portfolioChange').textContent = `${change >= 0 ? '+' : ''}€${changeValue.toFixed(2)} (${change >= 0 ? '+' : ''}${change.toFixed(2)}%) Today`;
+            document.getElementById('assetsPortfolioChange').textContent = `${change >= 0 ? '+' : ''}€${changeValue.toFixed(2)} (${change >= 0 ? '+' : ''}${change.toFixed(2)}%) Today`;
+        }
+
+        function updateBalanceInfo() {
+            const pair = state.currentPair;
+            const baseCoin = pair.replace('EUR', '');
+            
+            document.getElementById('priceBalanceInfo').textContent = `€${state.balance.EUR.toFixed(2)} available`;
+            document.getElementById('amountBalanceInfo').textContent = `${(state.balance[baseCoin] || 0).toFixed(6)} ${baseCoin} available`;
+        }
+
+        // ========== TRADING FUNCTIONS ==========
+        function selectPair(pair) {
+            state.currentPair = pair;
+            const market = state.marketData[pair];
+            
+            if (market) {
+                state.currentPrice = market.price;
+                state.currentChange = market.change;
+                
+                // Update trade display
+                updateTradeDisplay();
+                
+                // Update order price
+                document.getElementById('orderPrice').value = market.price.toFixed(2);
+                
+                // Update balance info
+                updateBalanceInfo();
+                
+                // Update order total
+                updateOrderTotal();
+                
+                // Update order book
+                updateOrderBook();
+                
+                // Reconnect WebSocket
+                if (state.ws) {
+                    state.ws.close();
+                }
+                setupWebSocket();
+                
+                // Update chart
+                if (state.chart) {
+                    loadChartData();
+                }
+                
+                // Re-render market lists to update active state
+                updateMarketLists();
+            }
+        }
+
+        function updateTradeDisplay() {
+            document.getElementById('tradePair').textContent = `${state.currentPair.replace('EUR', '')}/EUR`;
+            document.getElementById('tradePrice').textContent = `€${state.currentPrice.toFixed(2)}`;
+            
+            const changeElement = document.getElementById('tradePriceChange');
+            changeElement.textContent = `${state.currentChange >= 0 ? '+' : ''}${state.currentChange.toFixed(2)}%`;
+            changeElement.className = `price-change-badge ${state.currentChange >= 0 ? 'positive' : 'negative'}`;
+        }
+
+        function setOrderType(type) {
+            state.orderType = type;
+            
+            // Update UI
+            document.querySelectorAll('.panel-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // If market order, use current price
+            if (type === 'market') {
+                document.getElementById('orderPrice').value = state.currentPrice.toFixed(2);
+                document.getElementById('orderPrice').disabled = true;
+            } else {
+                document.getElementById('orderPrice').disabled = false;
+            }
+            
+            updateOrderTotal();
+        }
+
+        function setOrderPercentage(percent) {
+            const pair = state.currentPair;
+            const baseCoin = pair.replace('EUR', '');
+            const price = parseFloat(document.getElementById('orderPrice').value) || state.currentPrice;
+            
+            // Check which button was clicked to determine side
+            const button = event.target;
+            const isBuy = button.closest('.trading-panel')?.querySelector('.btn-buy')?.contains(button) || true;
+            
+            let amount = 0;
+            
+            if (isBuy) {
+                // Buy: calculate max amount with EUR balance
+                const maxAmount = state.balance.EUR / price;
+                amount = maxAmount * percent;
+            } else {
+                // Sell: calculate max amount with coin balance
+                const maxAmount = state.balance[baseCoin] || 0;
+                amount = maxAmount * percent;
+            }
+            
+            document.getElementById('orderAmount').value = amount.toFixed(6);
+            updateOrderTotal();
+        }
+
+        function updateOrderTotal() {
+            const price = parseFloat(document.getElementById('orderPrice').value) || state.currentPrice;
+            const amount = parseFloat(document.getElementById('orderAmount').value) || 0;
+            const total = price * amount;
+            const fee = total * 0.001; // 0.1% fee
+            
+            document.getElementById('orderTotal').textContent = `€${total.toFixed(2)}`;
+            document.getElementById('orderFee').textContent = `€${fee.toFixed(2)}`;
+            
+            const pair = state.currentPair;
+            const baseCoin = pair.replace('EUR', '');
+            const receiveAmount = amount - (amount * 0.001); // After fee
+            document.getElementById('orderReceive').textContent = `${receiveAmount.toFixed(6)} ${baseCoin}`;
+        }
+
+        function placeOrder(side) {
+            const amount = parseFloat(document.getElementById('orderAmount').value);
+            const price = parseFloat(document.getElementById('orderPrice').value) || state.currentPrice;
+            const pair = state.currentPair;
+            const baseCoin = pair.replace('EUR', '');
+            const total = price * amount;
+            const fee = total * 0.001;
+            
+            // Validation
+            if (!amount || amount <= 0) {
+                showToast('Please enter a valid amount', 'error');
+                return;
+            }
+            
+            if (price <= 0) {
+                showToast('Please enter a valid price', 'error');
+                return;
+            }
+            
+            // Check balance
+            if (side === 'buy') {
+                if (total > state.balance.EUR) {
+                    showToast('Insufficient EUR balance', 'error');
+                    return;
+                }
+                
+                // Execute buy
+                state.balance.EUR -= total;
+                state.balance[baseCoin] = (state.balance[baseCoin] || 0) + (amount - (amount * 0.001));
+                
+                showToast(`Bought ${amount.toFixed(6)} ${baseCoin} at €${price.toFixed(2)}`, 'success');
+                
+            } else {
+                if (amount > (state.balance[baseCoin] || 0)) {
+                    showToast(`Insufficient ${baseCoin} balance`, 'error');
+                    return;
+                }
+                
+                // Execute sell
+                state.balance[baseCoin] -= amount;
+                state.balance.EUR += total - fee;
+                
+                showToast(`Sold ${amount.toFixed(6)} ${baseCoin} at €${price.toFixed(2)}`, 'success');
+            }
+            
+            // Record trade
+            const trade = {
+                id: Date.now(),
+                pair: pair,
+                side: side,
+                price: price,
+                amount: amount,
+                total: total,
+                fee: fee,
+                timestamp: new Date().toISOString()
+            };
+            
+            state.tradeHistory.unshift(trade);
+            
+            // Update UI
+            updateBalanceDisplay();
+            updatePortfolioValue();
+            updateBalanceInfo();
+            updateAssetsList();
+            
+            // Clear form
+            document.getElementById('orderAmount').value = '';
+            updateOrderTotal();
+            
+            // Save to storage
+            saveToStorage();
+        }
+
+        // ========== WEBSOCKET ==========
+        function setupWebSocket() {
+            if (state.ws) {
+                state.ws.close();
+            }
+            
+            const symbol = state.currentPair.toLowerCase();
+            state.ws = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol}@ticker`);
+            
+            state.ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                state.currentPrice = parseFloat(data.c);
+                state.currentChange = parseFloat(data.P);
+                
+                // Update UI
+                updateTradeDisplay();
+                updateOrderBook();
+                
+                // Update portfolio value
+                updatePortfolioValue();
+            };
+            
+            state.ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+        }
+
+        // ========== CHART ==========
+        function initChart() {
+            const chartContainer = document.getElementById('chart');
+            if (!chartContainer || state.chart) return;
+            
+            chartContainer.innerHTML = '';
+            
+            state.chart = LightweightCharts.createChart(chartContainer, {
+                layout: {
+                    backgroundColor: '#1e2329',
+                    textColor: '#eaecef',
+                },
+                grid: {
+                    vertLines: { color: '#2b3139' },
+                    horzLines: { color: '#2b3139' },
+                },
+                width: chartContainer.clientWidth,
+                height: chartContainer.clientHeight,
+            });
+            
+            state.candleSeries = state.chart.addCandlestickSeries({
+                upColor: '#0ecb81',
+                downColor: '#f6465d',
+                borderDownColor: '#f6465d',
+                borderUpColor: '#0ecb81',
+                wickDownColor: '#f6465d',
+                wickUpColor: '#0ecb81',
+            });
+            
+            loadChartData();
+        }
+
+        async function loadChartData() {
+            if (!state.candleSeries) return;
+            
+            try {
+                const interval = state.timeframe === '1m' ? '1m' :
+                                state.timeframe === '5m' ? '5m' :
+                                state.timeframe === '15m' ? '15m' :
+                                state.timeframe === '1h' ? '1h' :
+                                state.timeframe === '4h' ? '4h' :
+                                state.timeframe === '1d' ? '1d' : '1w';
+                
+                const response = await fetch(`https://api.binance.com/api/v3/klines?symbol=${state.currentPair}&interval=${interval}&limit=100`);
+                const data = await response.json();
+                
+                const candles = data.map(d => ({
+                    time: d[0] / 1000,
+                    open: parseFloat(d[1]),
+                    high: parseFloat(d[2]),
+                    low: parseFloat(d[3]),
+                    close: parseFloat(d[4]),
+                }));
+                
+                state.candleSeries.setData(candles);
+                
+            } catch (error) {
+                console.error('Error loading chart data:', error);
+                // Generate dummy data
+                generateDummyChartData();
+            }
+        }
+
+        function generateDummyChartData() {
+            if (!state.candleSeries) return;
+            
+            const candles = [];
+            let time = Date.now() / 1000 - 100 * 3600;
+            let price = state.currentPrice * 0.9; // Start 10% lower
+            
+            for (let i = 0; i < 100; i++) {
+                const change = (Math.random() - 0.5) * 0.02;
+                price *= (1 + change);
+                
+                candles.push({
+                    time: time + i * 3600,
+                    open: price * (1 - Math.random() * 0.01),
+                    high: price * (1 + Math.random() * 0.02),
+                    low: price * (1 - Math.random() * 0.02),
+                    close: price,
+                });
+            }
+            
+            state.candleSeries.setData(candles);
+        }
+
+        function changeTimeframe(tf) {
+            state.timeframe = tf;
+            
+            // Update UI
+            document.querySelectorAll('.timeframe').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Reload chart data
+            if (state.candleSeries) {
+                loadChartData();
+            }
+        }
+
+        // ========== ORDER BOOK ==========
+        function updateOrderBook() {
+            const container = document.getElementById('orderBookRows');
+            if (!container) return;
+            
+            const basePrice = state.currentPrice;
+            const spread = basePrice * 0.0005;
+            
+            let html = '';
+            
+            // Asks (sell orders)
+            for (let i = 5; i >= 1; i--) {
+                const price = basePrice + (spread * i);
+                const amount = (Math.random() * 0.5).toFixed(3);
+                const total = (price * amount).toFixed(2);
+                
+                html += `
+                    <div class="order-book-row ask" onclick="setOrderPrice(${price})">
+                        <div>€${price.toFixed(2)}</div>
+                        <div>${amount}</div>
+                        <div>€${total}</div>
+                    </div>
+                `;
+            }
+            
+            // Current price row
+            html += `
+                <div style="text-align: center; padding: 8px 0; color: #f0b90b; font-weight: bold; border-top: 1px solid #2b3139; border-bottom: 1px solid #2b3139;">
+                    €${basePrice.toFixed(2)}
+                </div>
+            `;
+            
+            // Bids (buy orders)
+            for (let i = 1; i <= 5; i++) {
+                const price = basePrice - (spread * i);
+                const amount = (Math.random() * 0.5).toFixed(3);
+                const total = (price * amount).toFixed(2);
+                
+                html += `
+                    <div class="order-book-row bid" onclick="setOrderPrice(${price})">
+                        <div>€${price.toFixed(2)}</div>
+                        <div>${amount}</div>
+                        <div>€${total}</div>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        function setOrderPrice(price) {
+            document.getElementById('orderPrice').value = price.toFixed(2);
+            updateOrderTotal();
+        }
+
+        // ========== OPEN ORDERS ==========
+        function updateOpenOrders() {
+            const container = document.getElementById('openOrdersList');
+            if (!container) return;
+            
+            if (state.openOrders.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #848e9c;">No open orders</div>';
+                return;
+            }
+            
+            container.innerHTML = state.openOrders.map(order => `
+                <div style="background: #2b3139; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="font-weight: bold;">${order.pair}</span>
+                        <span style="color: ${order.side === 'buy' ? '#0ecb81' : '#f6465d'}">${order.side.toUpperCase()}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #848e9c;">
+                        <div>${order.amount} @ €${order.price}</div>
+                        <button onclick="cancelOrder(${order.id})" style="background: #f6465d; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer;">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ========== PAGE NAVIGATION ==========
+        function switchPage(page) {
+            state.currentPage = page;
+            
+            // Update footer tabs
+            document.querySelectorAll('.footer-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update pages
+            document.querySelectorAll('.page').forEach(p => {
+                p.classList.remove('active');
+            });
+            document.getElementById(page).classList.add('active');
+            
+            // Initialize chart if switching to trade page
+            if (page === 'tradePage' && !state.chart) {
+                setTimeout(initChart, 500);
+            }
+            
+            // Load data for specific pages
+            if (page === 'assetsPage') {
+                updateAssetsList();
+                updatePortfolioValue();
+            } else if (page === 'marketsPage') {
+                updateMarketsPageList();
+            }
+        }
+
+        // ========== UTILITY FUNCTIONS ==========
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            toast.style.borderLeftColor = type === 'error' ? '#f6465d' : type === 'success' ? '#0ecb81' : '#f0b90b';
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function resetDemo() {
+            if (confirm('Reset demo account? All balances will be restored to initial values.')) {
+                state.balance = {
+                    EUR: 400.00,
+                    BTC: 0.005,
+                    ETH: 0.05,
+                    BNB: 1.0,
+                    ADA: 200,
+                    XRP: 500,
+                    SOL: 2.5,
+                    DOGE: 5000
+                };
+                state.openOrders = [];
+                state.tradeHistory = [];
+                
+                updateBalanceDisplay();
+                updatePortfolioValue();
+                updateAssetsList();
+                updateBalanceInfo();
+                saveToStorage();
+                
+                showToast('Demo account reset successfully!');
+            }
+        }
+
+        // ========== DEMO FUNCTIONS ==========
+        function showDeposit() {
+            showToast('Demo feature: In a real app, you would deposit funds here');
+        }
+
+        function showWithdraw() {
+            showToast('Demo feature: In a real app, you would withdraw funds here');
+        }
+
+        function convertFunds() {
+            showToast('Demo feature: In a real app, you would convert between coins here');
+        }
+
+        function showMore() {
+            showToast('More options would appear here');
+        }
+
+        function showSettings() {
+            const settings = `
+                <div style="padding: 20px; max-width: 400px; margin: 0 auto;">
+                    <h3 style="margin-bottom: 20px;">Settings</h3>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px;">Theme</label>
+                        <select style="width: 100%; padding: 10px; background: #2b3139; border: 1px solid #2b3139; color: #eaecef; border-radius: 4px;">
+                            <option>Dark</option>
+                            <option>Light</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" checked> Enable Notifications
+                        </label>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" checked> Enable Sounds
+                        </label>
+                    </div>
+                    <button onclick="alert('Settings saved!')" style="width: 100%; padding: 12px; background: #f0b90b; color: #0b0e11; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                        Save Settings
+                    </button>
+                </div>
+            `;
+            alert(settings);
+        }
+
+        function filterFavorites(filter) {
+            document.querySelectorAll('.section-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // In a real app, you would filter the list
+            showToast(`Showing ${filter} favorites`);
+        }
+
+        function filterMarkets() {
+            const filter = document.getElementById('marketFilter').value;
+            showToast(`Showing ${filter} pairs`);
+        }
+
+        function searchMarkets() {
+            const search = document.getElementById('marketsSearch').value.toLowerCase();
+            showToast(`Searching for: ${search}`);
+        }
+
+        function searchAssets() {
+            const search = document.getElementById('assetsSearch').value.toLowerCase();
+            showToast(`Searching assets: ${search}`);
+        }
+
+        function showMarketsTab(tab) {
+            document.querySelectorAll('.markets-tab').forEach(t => {
+                t.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            showToast(`Showing ${tab} markets`);
+        }
+
+        function showAssetsTab(tab) {
+            document.querySelectorAll('.assets-tab').forEach(t => {
+                t.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            showToast(`Showing ${tab} assets`);
+        }
+
+        // ========== INITIALIZE ON LOAD ==========
+        // Initialize with default pair
+        selectPair('BTCEUR');
+        
+        // Update order book every few seconds
+        setInterval(updateOrderBook, 2000);
+        
+        // Update portfolio value periodically
+        setInterval(updatePortfolioValue, 10000);
+    </script>
+</body>
+  </html>
