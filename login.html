@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binance Clone - Login</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="config.js"></script>
+    <script src="db.js"></script>
+    <script src="auth.js"></script>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="logo" style="justify-content: center; margin-bottom: 30px;">
+                <div class="logo-icon"><i class="fas fa-chart-line"></i></div>
+                <div class="logo-text">BINANCE</div>
+                <div class="logo-demo">DEMO</div>
+            </div>
+            
+            <h1 class="login-title">Welcome Back</h1>
+            
+            <div id="login-form">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" class="login-input" placeholder="Enter your email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="login-input" placeholder="Enter your password">
+                </div>
+                
+                <button class="login-btn" onclick="login()">Login</button>
+                
+                <div class="login-links">
+                    <a href="#" onclick="showRegister()">Create account</a>
+                    <a href="#">Forgot password?</a>
+                </div>
+            </div>
+            
+            <div id="register-form" style="display: none;">
+                <div class="form-group">
+                    <label for="reg-email">Email</label>
+                    <input type="email" id="reg-email" class="login-input" placeholder="Enter your email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="reg-password">Password</label>
+                    <input type="password" id="reg-password" class="login-input" placeholder="Create a password">
+                </div>
+                
+                <div class="form-group">
+                    <label for="reg-confirm">Confirm Password</label>
+                    <input type="password" id="reg-confirm" class="login-input" placeholder="Confirm password">
+                </div>
+                
+                <button class="login-btn" onclick="register()">Create Account</button>
+                
+                <div class="login-links">
+                    <a href="#" onclick="showLogin()">Back to login</a>
+                </div>
+            </div>
+            
+            <div class="demo-info">
+                <p style="margin-top: 20px; color: var(--text-secondary); font-size: 12px; text-align: center;">
+                    <i class="fas fa-info-circle"></i> This is a demo. Use any email/password to login.
+                    Starting balance: €400 + various crypto assets.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showRegister() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'block';
+        }
+        
+        function showLogin() {
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+        }
+        
+        function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                alert('Please enter email and password');
+                return;
+            }
+            
+            if (auth.login(email, password)) {
+                window.location.href = 'index.html';
+            } else {
+                alert('Invalid credentials. Creating new demo account...');
+                // Auto-register if login fails
+                if (auth.register(email, password)) {
+                    window.location.href = 'index.html';
+                }
+            }
+        }
+        
+        function register() {
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const confirm = document.getElementById('reg-confirm').value;
+            
+            if (!email || !password) {
+                alert('Please enter email and password');
+                return;
+            }
+            
+            if (password !== confirm) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            if (auth.register(email, password)) {
+                window.location.href = 'index.html';
+            } else {
+                alert('Error creating account');
+            }
+        }
+        
+        // Auto-login for demo
+        document.addEventListener('DOMContentLoaded', function() {
+            const emailInput = document.getElementById('email');
+            if (emailInput) {
+                emailInput.value = `demo${Math.floor(Math.random() * 10000)}@example.com`;
+            }
+        });
+    </script>
+</body>
+</html>
