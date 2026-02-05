@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binance Demo - Trade</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">₿</div>
+                <div class="logo-text">Binance</div>
+                <div class="logo-demo">DEMO</div>
+            </div>
+            
+            <nav class="nav-tabs">
+                <a href="index.html" class="nav-tab active">Trade</a>
+                <a href="markets.html" class="nav-tab">Markets</a>
+                <a href="wallet.html" class="nav-tab">Wallet</a>
+                <a href="orders.html" class="nav-tab">Orders</a>
+            </nav>
+            
+            <div class="header-balance">
+                <div class="balance-item">
+                    <div class="balance-label">EUR</div>
+                    <div class="balance-value" id="eurBalance">€400.00</div>
+                </div>
+                <div class="balance-item">
+                    <div class="balance-label">BTC</div>
+                    <div class="balance-value" id="btcBalance">0.005000</div>
+                </div>
+                <button id="logoutBtn" style="margin-left: 16px; padding: 6px 12px; background: var(--bg-tertiary); border: none; color: var(--text-primary); border-radius: var(--radius-sm); cursor: pointer;">
+                    Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Sidebar - Markets -->
+            <div class="sidebar">
+                <div class="sidebar-section">
+                    <div class="section-title">Watchlist</div>
+                    <div class="market-list" id="watchlist">
+                        <!-- Watchlist loaded here -->
+                    </div>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="section-title">All Markets</div>
+                    <div class="market-search">
+                        <input type="text" placeholder="Search markets...">
+                    </div>
+                    <div class="market-list" id="marketList">
+                        <!-- All markets loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trading Area -->
+            <div class="trading-area">
+                <!-- Chart Header -->
+                <div class="chart-header">
+                    <div class="pair-info">
+                        <div class="pair-name" id="currentPair">BTC/EUR</div>
+                        <div class="price-display">
+                            <div class="current-price" id="currentPrice">€0.00</div>
+                            <div class="change positive" id="priceChange">+0.00%</div>
+                        </div>
+                    </div>
+                    <div class="timeframes">
+                        <button class="timeframe">1m</button>
+                        <button class="timeframe">5m</button>
+                        <button class="timeframe active">15m</button>
+                        <button class="timeframe">1h</button>
+                        <button class="timeframe">4h</button>
+                        <button class="timeframe">1d</button>
+                    </div>
+                </div>
+
+                <!-- Chart -->
+                <div class="chart-container">
+                    <div id="chart"></div>
+                </div>
+
+                <!-- Order Book -->
+                <div class="order-book">
+                    <div class="order-book-header">
+                        <span>Price (EUR)</span>
+                        <span>Amount</span>
+                        <span>Total</span>
+                    </div>
+                    <div class="order-book-rows" id="orderBook">
+                        <!-- Order book loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar - Order Form -->
+            <div class="order-form-container">
+                <div class="order-tabs">
+                    <button class="order-tab active">Limit</button>
+                    <button class="order-tab">Market</button>
+                    <button class="order-tab">Stop-Limit</button>
+                </div>
+                
+                <div class="order-form">
+                    <div class="form-group">
+                        <label>
+                            <span>Price (EUR)</span>
+                            <span class="balance-info" id="priceBalance"></span>
+                        </label>
+                        <input type="number" id="orderPrice" class="form-input" placeholder="0.00" step="0.01">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <span>Amount</span>
+                            <span class="balance-info" id="amountBalance"></span>
+                        </label>
+                        <input type="number" id="orderAmount" class="form-input" placeholder="0.00" step="0.000001">
+                        <div class="percent-buttons">
+                            <button class="percent-btn" data-percent="25">25%</button>
+                            <button class="percent-btn" data-percent="50">50%</button>
+                            <button class="percent-btn" data-percent="75">75%</button>
+                            <button class="percent-btn" data-percent="100">100%</button>
+                        </div>
+                    </div>
+                    
+                    <div class="order-summary">
+                        <div class="summary-row">
+                            <span>Total</span>
+                            <span id="orderTotal">€0.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Fee (0.1%)</span>
+                            <span id="orderFee">€0.00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="order-buttons">
+                        <button class="order-btn buy" id="buyButton">Buy BTC</button>
+                        <button class="order-btn sell" id="sellButton">Sell BTC</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="database.js"></script>
+    <script src="websocket.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
